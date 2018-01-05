@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+       Copyright 2009-2016 the original author or authors.
+
+       Licensed under the Apache License, Version 2.0 (the "License");
+       you may not use this file except in compliance with the License.
+       You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+       Unless required by applicable law or agreed to in writing, software
+       distributed under the License is distributed on an "AS IS" BASIS,
+       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+       See the License for the specific language governing permissions and
+       limitations under the License.
+
+-->
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 命名空间，用来管理SQL语句，避免id冲突，类似于Java中的包管理机制。不同命名空间下可以有相同的SQL语句id -->
+<mapper namespace="Message">
+
+  <!-- select标签中SQL语句查找到的列的值会在resultMap标签中找到对应关系并将值赋值给对象的对应的属性 -->
+  <resultMap type="com.imooc.bean.Message" id="MessageResult">
+    <id column="ID" jdbcType="INTEGER" property="id"/>
+    <result column="COMMAND" jdbcType="VARCHAR" property="command"/>
+    <result column="DESCRIPTION" jdbcType="VARCHAR" property="description"/>
+    <result column="CONTENT" jdbcType="VARCHAR" property="content"/>
+  </resultMap>
+
+  <!-- 动态拼接SQL语句时，需要动态传递参数，并且只能接收一个参数，这个参数类型使用全名（含包名） -->
+  <select id="queryMessageList" parameterType="com.imooc.bean.Message" resultMap="MessageResult">
+    SELECT ID,COMMAND,DESCRIPTION,CONTENT FROM message WHERE 1=1
+    <!-- 动态拼接参数 -->
+    <!-- 原SQL语句是：command != null && !"".equals(command.trim())，特殊字符被转义-->
+    <if test="command != null and !&quot;&quot;.equals(command.trim())">AND COMMAND=#{command}</if>
+    <!-- 这里使用通配符，注意'%'和#{description}有空格 -->
+    <if test="description != null and !&quot;&quot;.equals(description.trim())">AND DESCRIPTION LIKE '%' #{description} '%'</if>
+  </select>
+ 
+<!-- 可以获取自增主键值
+  <insert id="insertCommand" useGeneratedKeys="true" keyProperty="id" parameterType="com.imooc.bean.Message">
+  	INSERT INTO command (COMMAND,DESCRIPTION) VALUES (#{command},#{description})
+  </insert>
+ -->
+  
+ <!-- 删除单条记录，接收的参数是int型的 -->
+  <delete id="deleteOne" parameterType="int">
+    DELETE FROM message WHERE ID=#{_parameter}
+  </delete>
+ <!-- 批量删除信息，接收的参数被封装为List集合 -->
+  <delete id="deleteBatch" parameterType="java.util.List">
+    DELETE FROM message WHERE ID IN (
+    <foreach collection="list" item="item" separator=",">
+    	#{item}
+    </foreach>
+    )
+  </delete>
+<!-- 
+  <insert id="insert" parameterType="UserAlias" useGeneratedKeys="false">
+    INSERT INTO user
+    ( id,
+    username,
+    password,
+    administrator
+    )
+    VALUES
+    ( #{id},
+    #{username,jdbcType=VARCHAR},
+    #{password.encrypted:VARCHAR},
+    #{administrator,jdbcType=BOOLEAN}
+    )
+  </insert>
+
+  <update id="update" parameterType="UserAlias">
+    UPDATE user SET
+    username = #{username,jdbcType=VARCHAR},
+    password = #{password.encrypted,jdbcType=VARCHAR},
+    administrator = #{administrator,jdbcType=BOOLEAN}
+    WHERE
+    id = #{id,jdbcType=INTEGER}
+  </update>
+ -->
+
+</mapper>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+<mapper namespace="Commands">
+	<resultMap type="com.imooc.bean.Commands" id="Commands">
+		<id column="commandsId" jdbcType="INTEGER" property="id"/>
+		<result column="COMMAND" jdbcType="VARCHAR" property="command"/>
+		<result column="DESCRIPTION" jdbcType="VARCHAR" property="description"/>
+		<!-- 下面添加的属性在数据表中没有对应的字段。跨xml文件了所以名称前要加上命名空间的名字 -->
+		<collection property="commandContent" resultMap="CommandContent.CommandContent" />
+	</resultMap>
+	
+	<select id="queryCommandsList" parameterType="com.imooc.bean.Commands" resultMap="Commands">
+		SELECT a.ID AS commandsId,a.COMMAND,a.DESCRIPTION,b.ID,b.CONTENT FROM commands AS a LEFT JOIN command_content AS b
+		ON  a.ID = b.COMMAND_ID WHERE 1=1
+		<if test="command != null &amp;&amp; !&quot;&quot;.equals(command.trim())">AND a.COMMAND=#{command}</if>
+		<if test="description != null &amp;&amp; !&quot;&quot;.equals(description.trim())">AND a.DESCRIPTION LIKE '%' #{description} '%'</if>
+	</select>
+</mapper>
