@@ -1,0 +1,16 @@
+======【Log4j】==========
+1.log4j用来输出日志信息、参数等。
+2.log4j的使用需要以下两步：①引入JAR包；②引入Log4j的配置文件log4j.properties。
+3.【log4j.properties配置文件】
+（1）properties文件中是以key=value的形式存储信息的，需要使用到这个文件的时候就通过key来读取value值。key值需要根据要求来写。
+（2）以下是log4j.properties的基本配置内容
+log4j.rootLogger=DEBUG,Console
+log4j.appender.Console=org.apache.log4j.ConsoleAppender//输出到控制台
+log4j.appender.Console.layout=org.apache.log4j.PatternLayout//使用自定义的输出格式
+log4j.appender.Console.layout.ConversionPattern=%d [%t] %-5p [%c] - %m%n//自定义输出格式
+log4j.logger.org.apache=INFO//
+（3）log4j.rootLogger表示针对整个工程的日志输出都采用一下的配置要求。DEBUG表示日志输出等级。等级从低到高可以是DEBUG,IFNO,WARN,ERROR等，例如log.debug(message)，等于或高于该等级的可以进行输出，例如此配置文件中是DEBUG等级，那么包括DEBUG以及后面的等级都可以输出。但是Mybatis源码中使用log4j时使用的是DEBUG等级，所以这里要定义为DEBUG。
+Console是日志输出位置的名称，和下文的Console相对应，并且需要读取下面的log4j.appender.Console的配置才能决定输出位置。这里的Console只是个代名词。
+log4j.appender.Console.layout.ConversionPattern是自定义输出日志格式：%d表示输出日志的时间；%t表示当亲输出日志所在的线程；%p表示输出日志等级（如DEBUG等），5表示至少输出5位字符，若不足5位则使用空格补齐，-表示在字符的右边使用空格补齐，没有-表示在左边补齐（这是对对齐方式的格式控制）；%c表示日志输出时所在的类名全名（包含包名）；%m表示日志输出时将附加信息输出在这里；%n表示输出完换行（否则会在后面继续输出其他日志信息）。log4j中还有其他的格式控制字符。
+log4j.logger.org.apache=INFO：log4j.logger是关键字；org.apache是指某个包。这个配置是用来为指定的包配置不同的日志输出等级，因为在最开始配置整个工程的日志输出等级是DEBUG，所以这里该包下的日志输出等级配置为INFO则不会进行输出，所以目的是为了不输出我们不想关注的包下的日志信息。
+4.Mybatis下的LogFactory.class已经配置好了多种日志输出工具，工程使用哪种就会自动加载。
